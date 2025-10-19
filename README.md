@@ -1,4 +1,4 @@
-# Curtisy_server
+# Courtesy_server
 
 Application to generate and send courtesy emails and messages to a list of accounts using an LLM for content generation.
 
