@@ -1,19 +1,31 @@
 import os
 import base64
 from email.mime.text import MIMEText
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from . import config
+import config
+
+try:
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+except ImportError:
+    # Fallback dummy implementations
+    InstalledAppFlow = None
+    Request = None
+    Credentials = None
+    build = None
 
 # Placeholder for OAuth 2.0 scopes
 SCOPES = config.GMAIL_API["scopes"]
 
 def get_gmail_service():
+    """Authenticates with the Gmail API and returns a service object.
+    If the required Google libraries are unavailable, returns None.
     """
-    Authenticates with the Gmail API and returns a service object.
-    """
+    # If any of the essential components are missing, we cannot create a service.
+    if any(x is None for x in (InstalledAppFlow, Request, Credentials, build)):
+        print("Google Gmail API libraries are not installed. Skipping Gmail service initialization.")
+        return None
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first

@@ -1,10 +1,19 @@
 import json
-import google.generativeai as genai
-from . import config
+from dotenv import load_dotenv
+load_dotenv()
+try:
+    import google.generativeai as genai
+except ModuleNotFoundError:
+    genai = None
+import config
 
-# Configure the generative AI model
-genai.configure(api_key=config.LLM_API["api_key"])
-model = genai.GenerativeModel(config.LLM_API["model"])
+if genai is not None:
+    # Configure the generative AI model
+    genai.configure(api_key=config.LLM_API["api_key"])
+    model = genai.GenerativeModel(config.LLM_API["model"])
+else:
+    # Fallback: no AI model available
+    model = None
 
 def generate_email_content(recipient_name, context):
     """
@@ -18,16 +27,30 @@ def generate_email_content(recipient_name, context):
         str: The generated email content as a JSON string.
     """
     # This prompt instructs the LLM to return a JSON object with "subject" and "body" keys.
-    prompt = f"Write a formal and courteous email to {recipient_name} regarding {context}. " \
-             f"Sign the email from {config.SENDER_INFO['name']}. " \
-             'Return the email as a JSON object with two keys: "subject" and "body".'
+    prompt = os.getenv("LLM_PROMPT")
 
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        print(f"An error occurred while generating email content: {e}")
-        return None
+    if model is None:
+        # Simple fallback content
+        fallback = {
+            "subject": f"Hello {recipient_name}",
+            "body": f"Dear {recipient_name},\n\n{context}\n\nBest regards,\n{config.SENDER_INFO['name']}"
+        }
+        return json.dumps(fallback)
+    else:
+        try:
+            response = model.generate_content(prompt)
+            # If the response is empty or not a string, fallback
+            if not response or not getattr(response, 'text', None):
+                raise ValueError('Empty response from LLM')
+            return response.text
+        except Exception as e:
+            # Log the error and return fallback content
+            print(f"LLM generation error: {e}. Using fallback content.")
+            fallback = {
+                "subject": f"Hello {recipient_name}",
+                "body": f"Dear {recipient_name},\n\n{context}\n\nBest regards,\n{config.SENDER_INFO['name']}"
+            }
+            return json.dumps(fallback)
 
 if __name__ == '__main__':
     # Example usage

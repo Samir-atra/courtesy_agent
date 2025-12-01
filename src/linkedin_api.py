@@ -1,7 +1,7 @@
 import os
 import requests
 
-from . import config
+import config
 
 # Placeholder for LinkedIn API endpoints and OAuth configuration
 API_BASE_URL = "https://api.linkedin.com/v2"

@@ -23,7 +23,7 @@ LINKEDIN_API = {
 # LLM settings (if using an API)
 LLM_API = {
     "api_key": os.getenv("GEMINI_API_KEY"),
-    "model": "gemini-1.5-flash"  # example model
+    "model": "gemini-2.5-flash"  # example model
 }
 
 # Sender's information
