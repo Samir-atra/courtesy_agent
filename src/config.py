@@ -1,9 +1,15 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 # Configuration settings for the application
 
 # Gmail API settings
 GMAIL_API = {
-    "credentials_file": "credentials.json",
-    "token_file": "token.json",
+    "credentials_file": os.getenv("GMAIL_API_CREDENTIALS_PATH", "credentials.json"),
+    "token_file": os.getenv("GMAIL_API_TOKEN_PATH", "token.json"),
     "scopes": ["https://www.googleapis.com/auth/gmail.send"]
 }
 
@@ -16,12 +22,12 @@ LINKEDIN_API = {
 
 # LLM settings (if using an API)
 LLM_API = {
-    "api_key": "YOUR_LLM_API_KEY",
-    "model": "text-davinci-003" # example model
+    "api_key": os.getenv("GEMINI_API_KEY"),
+    "model": "gemini-1.5-flash"  # example model
 }
 
 # Sender's information
 SENDER_INFO = {
-    "name": "[Your Name]",
-    "email": "your-email@gmail.com"
+    "name": os.getenv("SENDER_NAME", "[Your Name]"),
+    "email": os.getenv("SENDER_EMAIL", "your-email@gmail.com")
 }
