@@ -1,18 +1,23 @@
+import csv
+import json
 from . import llm_generator, gmail_api, linkedin_api
+from .config import SENDER_INFO
 
-def get_contacts():
+def get_contacts(file_path="contacts.csv"):
     """
-    Returns a list of contacts.
-    In a real application, this could be read from a file or another API.
+    Reads a list of contacts from a CSV file.
     """
-    contacts = [
-        {"name": "Alice", "email": "alice@example.com", "platform": "gmail"},
-        {"name": "Bob", "linkedin_urn": "urn:li:person:bob123", "platform": "linkedin"},
-        {"name": "Charlie", "email": "charlie@example.com", "platform": "gmail"},
-    ]
+    contacts = []
+    try:
+        with open(file_path, "r") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                contacts.append(row)
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
     return contacts
 
-def main():
+def main(stop_on_error=True):
     """
     Main function to orchestrate the process of sending courtesy messages.
     """
@@ -31,28 +36,41 @@ def main():
     for contact in contacts:
         recipient_name = contact["name"]
 
-        # Generate personalized content
-        content = llm_generator.generate_email_content(recipient_name, message_context)
+        try:
+            # Generate personalized content
+            content_json = llm_generator.generate_email_content(recipient_name, message_context)
 
-        if contact["platform"] == "gmail":
-            print(f"\nProcessing Gmail contact: {recipient_name}")
-            subject, body = content.split('\n\n', 1) # Simple split for subject and body
+            if contact["platform"] == "gmail":
+                print(f"\nProcessing Gmail contact: {recipient_name}")
+                try:
+                    content = json.loads(content_json)
+                    subject = content["subject"]
+                    body = content["body"]
+                except (json.JSONDecodeError, KeyError) as e:
+                    print(f"Error parsing LLM response for {recipient_name}: {e}")
+                    if stop_on_error:
+                        break
+                    else:
+                        continue
 
-            # Reformat subject from the generated content
-            subject = subject.replace(f"Dear {recipient_name},", "").strip()
+                message = gmail_api.create_message(
+                    SENDER_INFO["email"], contact["email"], subject, body
+                )
+                gmail_api.send_message(gmail_service, "me", message)
 
-            message = gmail_api.create_message(
-                "me", contact["email"], "Regarding our collaboration", body
-            )
-            gmail_api.send_message(gmail_service, "me", message)
-
-        elif contact["platform"] == "linkedin":
-            print(f"\nProcessing LinkedIn contact: {recipient_name}")
-            linkedin_api.send_linkedin_message(
-                linkedin_token, contact["linkedin_urn"], content
-            )
+            elif contact["platform"] == "linkedin":
+                print(f"\nProcessing LinkedIn contact: {recipient_name}")
+                linkedin_api.send_linkedin_message(
+                    linkedin_token, contact["linkedin_urn"], content_json
+                )
+        except Exception as e:
+            print(f"An error occurred while processing contact {recipient_name}: {e}")
+            if stop_on_error:
+                print("Stopping execution due to an error.")
+                break
 
     print("\nApplication finished.")
 
 if __name__ == "__main__":
-    main()
+    # Set stop_on_error to False to continue processing contacts even if one fails
+    main(stop_on_error=True)

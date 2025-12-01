@@ -1,10 +1,10 @@
 import os
 import base64
 from email.mime.text import MIMEText
-# from google_auth_oauthlib.flow import InstalledAppFlow
-# from google.auth.transport.requests import Request
-# from googleapiclient.discovery import build
-
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from . import config
 
 # Placeholder for OAuth 2.0 scopes
@@ -18,24 +18,23 @@ def get_gmail_service():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    # if os.path.exists(config.GMAIL_API['token_file']):
-    #     creds = Credentials.from_authorized_user_file(config.GMAIL_API['token_file'], SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    # if not creds or not creds.valid:
-    #     if creds and creds.expired and creds.refresh_token:
-    #         creds.refresh(Request())
-    #     else:
-    #         flow = InstalledAppFlow.from_client_secrets_file(
-    #             config.GMAIL_API['credentials_file'], SCOPES)
-    #         creds = flow.run_local_server(port=0)
-    #     # Save the credentials for the next run
-    #     with open(config.GMAIL_API['token_file'], 'w') as token:
-    #         token.write(creds.to_json())
+    if os.path.exists(config.GMAIL_API['token_file']):
+        creds = Credentials.from_authorized_user_file(config.GMAIL_API['token_file'], SCOPES)
 
-    # In a real implementation, the above commented code would handle authentication.
-    # For now, we'll return a mock service object.
-    print("Returning mock Gmail service object.")
-    return None
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                config.GMAIL_API['credentials_file'], SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open(config.GMAIL_API['token_file'], 'w') as token:
+            token.write(creds.to_json())
+
+    service = build('gmail', 'v1', credentials=creds)
+    return service
 
 def create_message(sender, to, subject, message_text):
     """
@@ -55,7 +54,7 @@ def create_message(sender, to, subject, message_text):
     message['from'] = sender
     message['subject'] = subject
     raw_message_b64 = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    return {'raw': raw_message_b64, 'to': to, 'subject': subject}
+    return {'raw': raw_message_b64}
 
 def send_message(service, user_id, message):
     """
@@ -68,13 +67,10 @@ def send_message(service, user_id, message):
         message (dict): Message to be sent.
     """
     try:
-        # In a real implementation, this would send the email.
-        # api_message_body = {'raw': message['raw']}
-        # sent_message = (service.users().messages().send(userId=user_id, body=api_message_body)
-        #            .execute())
-        # print(f"Message Id: {sent_message['id']}")
-        print(f"Simulating sending email to {message['to']} with subject '{message['subject']}'.")
-        return message
+        sent_message = (service.users().messages().send(userId=user_id, body=message)
+                       .execute())
+        print(f"Message Id: {sent_message['id']}")
+        return sent_message
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
@@ -83,7 +79,7 @@ if __name__ == '__main__':
     # Example usage
     gmail_service = get_gmail_service()
 
-    sender_email = "your-email@gmail.com"
+    sender_email = config.SENDER_INFO["email"]
     recipient_email = "recipient@example.com"
     email_subject = "Test Email"
     email_body = "This is a test email sent via a mock Gmail API."

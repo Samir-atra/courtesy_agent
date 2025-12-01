@@ -4,16 +4,17 @@ Application to generate and send courtesy emails and messages to a list of accou
 
 ## Overview
 
-This program uses a Large Language Model (LLM) to generate personalized messages and sends them to a predefined list of contacts via the Gmail and LinkedIn APIs. The current implementation provides a complete architectural skeleton, but requires user configuration to be fully functional, as it cannot perform the interactive OAuth 2.0 flow required by these APIs on its own.
+This program uses a Large Language Model (LLM) to generate personalized messages and sends them to a predefined list of contacts via the Gmail API.
 
 This guide provides the necessary steps to set up and run the application.
 
 ## Features
 
-- **LLM-Powered Content:** Generates message content using a placeholder LLM module.
-- **Gmail Integration:** Sends emails through the Gmail API (requires user authentication).
-- **LinkedIn Integration:** Sends messages to LinkedIn connections (requires user authentication).
-- **Configurable:** API keys and settings are managed in a central `config.py` file.
+- **LLM-Powered Content:** Generates message content using the Gemini LLM.
+- **Gmail Integration:** Sends emails through the Gmail API.
+- **Configurable:** API keys and settings are managed in a `.env` file.
+- **Contact Management:** Contacts are managed in a `contacts.csv` file.
+- **Error Handling:** Configurable error handling to either stop on an error or continue.
 
 ## Prerequisites
 
@@ -41,7 +42,7 @@ pip install -r requirements.txt
 
 ### 3. Configure the APIs
 
-You will need to obtain API credentials from Google and LinkedIn.
+You will need to obtain API credentials from Google.
 
 #### A. Gmail API Setup
 
@@ -59,25 +60,42 @@ You will need to obtain API credentials from Google and LinkedIn.
     - A window will appear with your Client ID and Client Secret. Click **Download JSON**.
     - Rename the downloaded file to `credentials.json` and place it in the root directory of this project.
 
-#### B. LinkedIn API Setup
+#### B. Gemini LLM API
 
-1.  **Go to the LinkedIn Developer Portal:** [https://www.linkedin.com/developers/](https://www.linkedin.com/developers/)
-2.  **Create an App:** Follow the instructions to create a new application.
-3.  **Get Credentials:**
-    - Once your app is created, navigate to the **Auth** tab.
-    - You will find your **Client ID** and **Client Secret** here.
-4.  **Update Configuration:**
-    - Open the `src/config.py` file.
-    - Replace the placeholder values for `YOUR_LINKEDIN_CLIENT_ID` and `YOUR_LINKEDIN_CLIENT_SECRET` with your actual credentials.
+1.  **Go to the Google AI Studio:** [https://aistudio.google.com/](https://aistudio.google.com/)
+2.  **Create an API key.**
+3.  **Update the `.env` file:**
+    - Open the `.env` file.
+    - Replace the placeholder value for `YOUR_GEMINI_API_KEY` with your actual API key.
 
-#### C. LLM API (Optional)
+### 4. Create the `.env` File
 
-If you wish to integrate a real LLM:
-1.  Obtain an API key from your preferred LLM provider (e.g., OpenAI, Cohere).
-2.  Update the `LLM_API` dictionary in `src/config.py` with your key.
-3.  Modify `src/llm_generator.py` to make an actual API call using the credentials.
+Create a `.env` file in the root directory and add the following content:
 
-### 4. Running the Application
+```
+# Gmail API
+GMAIL_API_CREDENTIALS_PATH="credentials.json"
+GMAIL_API_TOKEN_PATH="token.json"
+
+# Gemini LLM
+GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+
+# Sender Info
+SENDER_NAME="[Your Name]"
+SENDER_EMAIL="your-email@gmail.com"
+```
+
+### 5. Create the `contacts.csv` File
+
+Create a `contacts.csv` file in the root directory with the following format:
+
+```csv
+name,email,platform
+Alice,alice@example.com,gmail
+Bob,bob@example.com,gmail
+```
+
+### 6. Running the Application
 
 The first time you run the application, you will be prompted to authenticate with Google.
 
@@ -88,7 +106,7 @@ python -m src.main
 - A browser window will open, asking you to log in to your Google account and grant permissions.
 - After you approve, a `token.json` file will be created in the root directory. This file stores your authentication tokens so you don't have to log in every time.
 
-**Note:** The LinkedIn API flow is mocked in this version. A similar interactive flow would need to be implemented in `src/linkedin_api.py` for full functionality.
+**Note:** The LinkedIn API flow is mocked in this version.
 
 ## How It Works
 
