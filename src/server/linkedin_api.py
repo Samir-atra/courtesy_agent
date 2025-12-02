@@ -27,36 +27,17 @@ def get_linkedin_service():
 
 def send_linkedin_message(access_token, recipient_urn, message_text):
     """
-    Sends a message to a LinkedIn connection.
+    Simulates sending a message to a LinkedIn connection by printing its details.
 
     Args:
-        access_token (str): The OAuth 2.0 access token.
+        access_token (str): The OAuth 2.0 access token (not used for sending).
         recipient_urn (str): The URN of the LinkedIn member.
         message_text (str): The message content.
     """
-    # In a real implementation, this would make a POST request to the LinkedIn API.
-    # messages_endpoint = f"{API_BASE_URL}/messages"
-    # headers = {
-    #     "Authorization": f"Bearer {access_token}",
-    #     "Content-Type": "application/json"
-    # }
-    # payload = {
-    #     "recipients": [recipient_urn],
-    #     "message": {
-    #         "body": {
-    #             "text": message_text
-    #         }
-    #     }
-    # }
-
-    # try:
-    #     response = requests.post(messages_endpoint, headers=headers, json=payload)
-    #     response.raise_for_status()
-    #     print(f"Message sent successfully to {recipient_urn}")
-    # except requests.exceptions.RequestException as e:
-    #     print(f"An error occurred: {e}")
-
-    print(f"Simulating sending LinkedIn message to {recipient_urn}: '{message_text}'")
+    print("--- SIMULATING LINKEDIN MESSAGE SEND ---")
+    print(f"To LinkedIn URN: {recipient_urn}")
+    print(f"Message: {message_text[:200]}...") # Truncate message for display
+    print("----------------------------------------")
 
 if __name__ == '__main__':
     # Example usage
