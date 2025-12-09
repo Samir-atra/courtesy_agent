@@ -29,16 +29,21 @@ GMAIL_API = {
 
 # Feature flags
 # Control whether to simulate email sending or perform actual sending.
-SIMULATE_EMAIL_SEND = os.getenv("SIMULATE_EMAIL_SEND", "True").lower() == "true"
+SIMULATE_EMAIL_SEND = os.getenv("SIMULATE_EMAIL_SEND", "False").lower() == "true"
 
 # LinkedIn API settings
-# NOTE: These are placeholder values. A full LinkedIn integration would require
-# obtaining proper API credentials and implementing the OAuth 2.0 flow.
-LINKEDIN_API = {
-    "client_id": "YOUR_LINKEDIN_CLIENT_ID", # Replace with actual Client ID
-    "client_secret": "YOUR_LINKEDIN_CLIENT_SECRET", # Replace with actual Client Secret
-    "redirect_uri": "http://localhost:8000/callback" # Replace with actual Redirect URI
-}
+# These credentials are loaded from environment variables.
+# To configure, add the following to your .env file:
+#   LINKEDIN_CLIENT_ID=your_client_id
+#   LINKEDIN_CLIENT_SECRET=your_client_secret
+#   LINKEDIN_REDIRECT_URI=http://localhost:8000/callback
+#
+# Get your credentials from: https://www.linkedin.com/developers/
+# LINKEDIN_API = {
+#     "client_id": os.getenv("LINKEDIN_CLIENT_ID", "YOUR_LINKEDIN_CLIENT_ID"),
+#     "client_secret": os.getenv("LINKEDIN_CLIENT_SECRET", "YOUR_LINKEDIN_CLIENT_SECRET"),
+#     "redirect_uri": os.getenv("LINKEDIN_REDIRECT_URI", "http://localhost:8000/callback"),
+# }
 
 # Large Language Model (LLM) API settings
 # Used for configuring the generative AI model for content creation.

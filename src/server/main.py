@@ -11,7 +11,7 @@ import csv
 import os
 import json
 import time
-import llm_generator, gmail_api, linkedin_api
+import llm_generator, gmail_api #, linkedin_api     <---------- linkedin stuff
 import config
 from config import SENDER_INFO
 from dotenv import load_dotenv
@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 # This is important for configuration like LLM API keys and sender information.
 load_dotenv()
 
-def get_contacts(file_path: str = "contacts.csv") -> list[dict]:
+def get_contacts(file_path: str = "two_only.csv") -> list[dict]:
     """
     Reads a list of contacts from a specified CSV file.
 
@@ -70,7 +70,7 @@ def main(stop_on_error: bool = True):
     if gmail_service is None:
         print("Gmail service not available; Gmail contacts will be skipped or mocked.")
     # Get a mock LinkedIn API token.
-    linkedin_token = linkedin_api.get_linkedin_service()
+    # linkedin_token = linkedin_api.get_linkedin_service()                                <------ linkedin stuff
 
     # Retrieve the list of contacts from the specified CSV file.
     contacts = get_contacts()
