@@ -11,6 +11,8 @@ import csv
 import os
 import json
 import time
+import subprocess
+import tempfile
 import llm_generator, gmail_api #, linkedin_api     <---------- linkedin stuff
 import config
 from config import SENDER_INFO
@@ -20,31 +22,104 @@ from dotenv import load_dotenv
 # This is important for configuration like LLM API keys and sender information.
 load_dotenv()
 
-def get_contacts(file_path: str = "two_only.csv") -> list[dict]:
+def open_in_editor(content: str) -> str:
     """
-    Reads a list of contacts from a specified CSV file.
+    Opens the content in a text editor (defaulting to nano) and returns the edited content.
+    """
+    editor = os.environ.get('EDITOR', 'nano')
+    
+    with tempfile.NamedTemporaryFile(mode='w+', suffix=".txt", delete=False) as tf:
+        tf.write(content)
+        tf_path = tf.name
+        
+    try:
+        subprocess.call([editor, tf_path])
+        with open(tf_path, 'r') as tf:
+            return tf.read()
+    except Exception as e:
+        print(f"Error checking content in editor: {e}")
+        return content
+    finally:
+        if os.path.exists(tf_path):
+            os.remove(tf_path)
 
-    Each row in the CSV is expected to represent a contact with various fields,
-    which are loaded as dictionaries.
+def parse_draft(content: str) -> tuple[str, str]:
+    """
+    Parses the subject and body from the email draft.
+    Expected format:
+    Subject: <subject>
+    
+    <body>
+    """
+    lines = content.splitlines()
+    subject = None
+    body_lines = []
+    reading_body = False
+    
+    for line in lines:
+        if line.strip().startswith("#"):
+            continue
+        
+        if not reading_body:
+            if line.lstrip().lower().startswith("subject:"):
+                # Extract subject, handle cases where user might leave space or not
+                parts = line.split(":", 1)
+                if len(parts) > 1:
+                    subject = parts[1].strip()
+                reading_body = True
+                continue
+            elif line.strip() == "":
+                continue
+        
+        body_lines.append(line)
+        
+    return subject, "\n".join(body_lines).strip()
+
+
+def get_contacts(file_path: str = "connect_hub_contacts_2025-12-14.csv") -> list[dict]:
+    """
+    Reads a list of contacts from a specified CSV file (Connect Hub format).
 
     Args:
-        file_path (str): The path to the CSV file containing contact information.
-                         Defaults to "contacts.csv".
+        file_path (str): The path to the CSV file. Defaults to "connect_hub_contacts_2025-12-14.csv".
 
     Returns:
-        list[dict]: A list of dictionaries, where each dictionary represents a contact.
-                    Returns an empty list if the file is not found or an error occurs.
+        list[dict]: A list of dictionaries with normalized keys (name, email, platform, etc.).
     """
     contacts = []
     try:
         # Construct the full path relative to the current working directory
         full_file_path = os.path.join(os.getcwd(), file_path)
-        with open(full_file_path, "r") as file:
+        with open(full_file_path, "r", encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                contacts.append(row)
+                # Extract fields from the new CSV schema
+                prefix = row.get("Prefix", "").strip()
+                first_name = row.get("First Name", "").strip()
+                last_name = row.get("Last Name", "").strip()
+                
+                # Construct the full name (e.g. "Prof. David Malan")
+                name_parts = [p for p in [prefix, first_name, last_name] if p]
+                full_name = " ".join(name_parts)
+                
+                # Map Group to platform (and normalize to lowercase as expected by logic)
+                platform = row.get("Group", "").strip().lower()
+                email = row.get("Email", "").strip()
+                
+                # Create the contact dictionary expected by the main loop
+                contact = {
+                    "name": full_name,
+                    "email": email,
+                    "platform": platform,
+                    # Store original fields if needed later
+                    "prefix": prefix,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "linkedin_urn": row.get("linkedin_urn", "") # Placeholder if missing
+                }
+                contacts.append(contact)
     except FileNotFoundError:
-        print(f"Error: The file {file_file_path} was not found.")
+        print(f"Error: The file {file_path} was not found.")
     return contacts
 
 def main(stop_on_error: bool = True):
@@ -81,9 +156,22 @@ def main(stop_on_error: bool = True):
         print("Warning: MESSAGE_CONTEXT environment variable is not set. Using default.")
         message_context = "sending a courtesy message"
 
+    # Get the start index from environment variables.
+    try:
+        start_index = int(os.getenv("START_CONTACT_INDEX", "0"))
+    except ValueError:
+        print("Warning: START_CONTACT_INDEX is not a valid integer. Defaulting to 0.")
+        start_index = 0
+    
+    if start_index > 0:
+        print(f"Skipping the first {start_index} contacts as per START_CONTACT_INDEX.")
+
     # --- Contact Processing Loop ---
     # Iterate through each contact to generate and send messages (or simulate sending).
-    for contact in contacts:
+    for i, contact in enumerate(contacts):
+        if i < start_index:
+            continue
+            
         recipient_name = contact["name"]
 
         try:
@@ -131,8 +219,28 @@ def main(stop_on_error: bool = True):
                     else:
                         continue # Continue to the next contact if stop_on_error is False.
 
-                # Display the draft email content to the console.
-                print(f"\n--- Draft Email for {recipient_name} ---")
+                # Prepare the draft content for the editor.
+                draft_content = f"# Instructions: Review and edit the email below.\n# Lines starting with '#' are ignored.\n# Ensure the Subject line remains.\n\nSubject: {subject}\n\n{body}"
+                
+                print(f"Opening draft for {recipient_name} in text editor...")
+                # Open the draft in the editor.
+                edited_content = open_in_editor(draft_content)
+                
+                # Parse the edited content.
+                new_subject, new_body = parse_draft(edited_content)
+                
+                if new_subject:
+                    subject = new_subject
+                else:
+                    print("Warning: Could not parse 'Subject:' line. Using original subject.")
+                
+                if new_body:
+                    body = new_body
+                else:
+                    print("Warning: Body appears empty after edit.")
+
+                # Display the final email content to the console.
+                print(f"\n--- Final Email Content for {recipient_name} ---")
                 print(f"Subject: {subject}")
                 print(f"Body:\n{body}\n-----------------------------------")
 
