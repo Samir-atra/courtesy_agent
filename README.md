@@ -112,8 +112,8 @@ Then edit `.env` with your credentials:
 | `GEMINI_API_KEY` | ✅ Yes | Your Gemini API key | - |
 | `GMAIL_API_CREDENTIALS_PATH` | ❌ No | Path to Gmail credentials | `credentials.json` |
 | `GMAIL_API_TOKEN_PATH` | ❌ No | Path to token storage | `token.json` |
-| `SENDER_NAME` | ❌ No | Your name | `Samer Attrah` |
-| `SENDER_EMAIL` | ❌ No | Your email address | `samiratra95@gmail.com` |
+| `SENDER_NAME` | ❌ No | Your name | `John Doe` |
+| `SENDER_EMAIL` | ❌ No | Your email address | `john.doe@mail.com` |
 | `MESSAGE_CONTEXT` | ❌ No | Context for LLM prompt | `sending a courtesy message` |
 | `SIMULATE_EMAIL_SEND` | ❌ No | Test mode (no actual sends) | `True` |
 | `REVIEW_IN_EDITOR` | ❌ No | Review drafts before sending | `True` |
