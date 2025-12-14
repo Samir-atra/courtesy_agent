@@ -55,7 +55,7 @@ LLM_API = {
     # Loaded from the GEMINI_API_KEY environment variable.
     "api_key": os.getenv("GEMINI_API_KEY"),
     # The specific LLM model to use (e.g., "gemini-2.5-flash").
-    "model": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"]
+    "model": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemma-3-27b-it", "gemma-3-12b-it"]
 }
 
 # Sender's information
