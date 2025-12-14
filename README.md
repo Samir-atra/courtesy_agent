@@ -233,6 +233,12 @@ Contributions are welcome! Feel free to:
 
 ---
 
+## 🧩 For best experience
+
+Checkout the [contacts manager](https://github.com/Samir-atra/Contacts_manager/tree/main)
+
+---
+
 <div align="center">
 
 **Made with ❤️ by [Samer Attrah](https://github.com/Samir-atra)**
