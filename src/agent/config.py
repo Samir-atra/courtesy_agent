@@ -31,6 +31,9 @@ GMAIL_API = {
 # Control whether to simulate email sending or perform actual sending.
 SIMULATE_EMAIL_SEND = os.getenv("SIMULATE_EMAIL_SEND", "False").lower() == "true"
 
+# Control whether to review the email draft in a text editor before sending.
+REVIEW_IN_EDITOR = os.getenv("REVIEW_IN_EDITOR", "True").lower() == "true"
+
 # LinkedIn API settings
 # These credentials are loaded from environment variables.
 # To configure, add the following to your .env file:

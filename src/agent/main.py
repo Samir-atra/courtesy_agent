@@ -222,22 +222,25 @@ def main(stop_on_error: bool = True):
                 # Prepare the draft content for the editor.
                 draft_content = f"# Instructions: Review and edit the email below.\n# Lines starting with '#' are ignored.\n# Ensure the Subject line remains.\n\nSubject: {subject}\n\n{body}"
                 
-                print(f"Opening draft for {recipient_name} in text editor...")
-                # Open the draft in the editor.
-                edited_content = open_in_editor(draft_content)
-                
-                # Parse the edited content.
-                new_subject, new_body = parse_draft(edited_content)
-                
-                if new_subject:
-                    subject = new_subject
+                if config.REVIEW_IN_EDITOR:
+                    print(f"Opening draft for {recipient_name} in text editor...")
+                    # Open the draft in the editor.
+                    edited_content = open_in_editor(draft_content)
+                    
+                    # Parse the edited content.
+                    new_subject, new_body = parse_draft(edited_content)
+                    
+                    if new_subject:
+                        subject = new_subject
+                    else:
+                        print("Warning: Could not parse 'Subject:' line. Using original subject.")
+                    
+                    if new_body:
+                        body = new_body
+                    else:
+                        print("Warning: Body appears empty after edit.")
                 else:
-                    print("Warning: Could not parse 'Subject:' line. Using original subject.")
-                
-                if new_body:
-                    body = new_body
-                else:
-                    print("Warning: Body appears empty after edit.")
+                    print(f"Skipping editor review for {recipient_name} based on configuration.")
 
                 # Display the final email content to the console.
                 print(f"\n--- Final Email Content for {recipient_name} ---")
