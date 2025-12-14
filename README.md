@@ -1,146 +1,242 @@
-# Courtesy_agent
+# 📧 Courtesy Agent
 
-Application to generate and send courtesy emails and messages to a list of accounts using an LLM for content generation.
+<div align="center">
 
-## Overview
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
+![Gmail API](https://img.shields.io/badge/Gmail-API-red.svg)
+![Gemini](https://img.shields.io/badge/Gemini-LLM-purple.svg)
 
-This program uses a Large Language Model (LLM) to generate personalized messages and sends them to a predefined list of contacts via the Gmail API.
+**Automated courtesy email generation and delivery powered by AI** ✨
 
-This guide provides the necessary steps to set up and run the application.
+[Features](#-features) • [Setup](#-setup-and-configuration) • [Usage](#-running-the-application) • [Configuration](#-advanced-configuration--optional-flags)
 
-## Features
+</div>
 
-- **LLM-Powered Content:** Generates message content using the Gemini LLM.
-- **Gmail Integration:** Sends emails through the Gmail API.
-- **Configurable:** API keys and settings are managed in a `.env` file.
-- **Contact Management:** Contacts are managed in a `contacts.csv` file.
-- **Error Handling:** Configurable error handling to either stop on an error or continue.
+---
 
-## Prerequisites
+## 📖 Overview
 
-- Python 3.8+
-- `pip` for installing packages
+**Courtesy Agent** is an intelligent automation tool that uses Large Language Models (LLMs) to generate personalized courtesy emails and messages. It seamlessly integrates with the **Gmail API** to send professional, context-aware emails to your contacts with minimal effort.
 
-## Setup and Configuration
+Perfect for:
+- 🎓 Academic outreach
+- 💼 Professional networking
+- 🤝 Relationship management
+- 📬 Follow-up communications
 
-Follow these steps to get the application running on your local machine.
+---
 
-### 1. Clone the Repository
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 **AI-Powered Content** | Generates personalized messages using Google's Gemini LLM |
+| 📮 **Gmail Integration** | Sends emails directly through the Gmail API |
+| ✏️ **Interactive Review** | Review and edit drafts in your terminal editor before sending |
+| ⚙️ **Highly Configurable** | Manage all settings via `.env` file |
+| 📊 **Contact Management** | Import contacts from CSV files |
+| 🛡️ **Error Handling** | Configurable error handling with stop-on-error option |
+| 🔄 **Smart Failover** | Automatic model switching when API quotas are exceeded |
+| 🧪 **Simulation Mode** | Test without sending actual emails |
+
+---
+
+## 📋 Prerequisites
+
+- 🐍 **Python 3.8+**
+- 📦 **pip** for package management
+- 🔑 **Google Cloud Account** (for Gmail API)
+- 🧠 **Gemini API Key** (from [Google AI Studio](https://aistudio.google.com/))
+
+---
+
+## 🚀 Setup and Configuration
+
+### 1️⃣ Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd Curtisy_server
+git clone https://github.com/Samir-atra/courtesy_agent.git
+cd courtesy_agent
 ```
 
-### 2. Install Dependencies
-
-Install the required Python libraries using the `requirements.txt` file.
+### 2️⃣ Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure the APIs
+Or use conda (recommended):
 
-You will need to obtain API credentials from Google.
-
-#### A. Gmail API Setup
-
-1.  **Go to the Google Cloud Console:** [https://console.cloud.google.com/](https://console.cloud.google.com/)
-2.  **Create a new project.**
-3.  **Enable the Gmail API:**
-    - In the navigation menu, go to **APIs & Services > Library**.
-    - Search for "Gmail API" and enable it.
-4.  **Create OAuth 2.0 Credentials:**
-    - Go to **APIs & Services > Credentials**.
-    - Click **Create Credentials > OAuth client ID**.
-    - Select **Desktop app** as the application type.
-    - Click **Create**.
-5.  **Download Credentials:**
-    - A window will appear with your Client ID and Client Secret. Click **Download JSON**.
-    - Rename the downloaded file to `credentials.json` and place it in the root directory of this project.
-    *Upon first execution, you will be prompted to open a web browser to authorize the application to send emails on your behalf. This process uses the `credentials.json` file and generates a `token.json` file which stores your credentials for future use.*
-
-#### B. Gemini LLM API
-
-1.  **Go to the Google AI Studio:** [https://aistudio.google.com/](https://aistudio.google.com/)
-2.  **Create an API key.**
-3.  **Update the `.env` file:**
-    *See the detailed `.env` file configuration below.*
-
-### 4. Create the `.env` File
-
-Create a `.env` file in the root directory and add the following content:
-
-*   **`.env` File Configuration:**
-    *   `GMAIL_API_CREDENTIALS_PATH`: (Optional) Path to the Gmail OAuth credentials JSON file. Defaults to `credentials.json`.
-    *   `GMAIL_API_TOKEN_PATH`: (Optional) Path to store the Gmail API access/refresh tokens. Defaults to `token.json`.
-    *   `GEMINI_API_KEY`: (Required) Your API key for the Gemini LLM.
-    *   `SENDER_NAME`: (Optional) The name to be used as the sender of emails. Defaults to "Samer Attrah".
-    *   `SENDER_EMAIL`: (Optional) The email address to send emails from. Defaults to "samiratra95@gmail.com".
-    *   `MESSAGE_CONTEXT`: (Optional) A general context string for the LLM prompt (e.g., "our follow-up meeting", "a thank you note"). Defaults to "sending a courtesy message".
-    *   `SIMULATE_EMAIL_SEND`: (Optional) Set to `False` to send actual emails; otherwise, emails are simulated and printed to the console. Defaults to `True`.
-    *   `LLM_PROMPT`: (Optional) Allows customization of the base prompt used to instruct the LLM.
-
-```
-# Example .env content:
-# GMAIL_API_CREDENTIALS_PATH="credentials.json"
-# GMAIL_API_TOKEN_PATH="token.json"
-# GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
-# SENDER_NAME="Your Name"
-# SENDER_EMAIL="your.email@gmail.com"
-# MESSAGE_CONTEXT="following up on our recent conversation"
-# SIMULATE_EMAIL_SEND=True
-# LLM_PROMPT="Draft a polite and professional email."
+```bash
+conda activate courtsey_server
 ```
 
-### 5. Create the `contacts.csv` File
+### 3️⃣ Configure the APIs
 
-Create a `contacts.csv` file in the root directory with the following format:
+#### 🔐 A. Gmail API Setup
 
-*   **`contacts.csv` File Format:**
-    *   The CSV file should contain the following columns: `name`, `email`, `platform`, and `linkedin_urn`.
-    *   `linkedin_urn` is required for contacts with `platform` set to `linkedin` and should follow the format `urn:li:person:<unique_id>`.
+1. **Visit the [Google Cloud Console](https://console.cloud.google.com/)**
+2. **Create a new project**
+3. **Enable the Gmail API:**
+   - Navigate to **APIs & Services > Library**
+   - Search for "Gmail API" and enable it
+4. **Create OAuth 2.0 Credentials:**
+   - Go to **APIs & Services > Credentials**
+   - Click **Create Credentials > OAuth client ID**
+   - Select **Desktop app** as the application type
+5. **Download Credentials:**
+   - Download the JSON file
+   - Rename it to `credentials.json` and place it in the project root
+
+> 💡 **Note:** On first run, you'll authorize the app via browser. This creates a `token.json` file for future use.
+
+#### 🧠 B. Gemini LLM API
+
+1. **Visit [Google AI Studio](https://aistudio.google.com/)**
+2. **Create an API key**
+3. **Add it to your `.env` file** (see below)
+
+### 4️⃣ Create the `.env` File
+
+Start with the provided template:
+
+```bash
+cp .env.template .env
+```
+
+Then edit `.env` with your credentials:
+
+| Variable | Required | Description | Default |
+|----------|----------|-------------|---------|
+| `GEMINI_API_KEY` | ✅ Yes | Your Gemini API key | - |
+| `GMAIL_API_CREDENTIALS_PATH` | ❌ No | Path to Gmail credentials | `credentials.json` |
+| `GMAIL_API_TOKEN_PATH` | ❌ No | Path to token storage | `token.json` |
+| `SENDER_NAME` | ❌ No | Your name | `Samer Attrah` |
+| `SENDER_EMAIL` | ❌ No | Your email address | `samiratra95@gmail.com` |
+| `MESSAGE_CONTEXT` | ❌ No | Context for LLM prompt | `sending a courtesy message` |
+| `SIMULATE_EMAIL_SEND` | ❌ No | Test mode (no actual sends) | `True` |
+| `REVIEW_IN_EDITOR` | ❌ No | Review drafts before sending | `True` |
+| `START_CONTACT_INDEX` | ❌ No | Skip first N contacts | `0` |
+| `LLM_PROMPT` | ❌ No | Custom LLM instruction | `Write a formal and courteous email.` |
+
+**Example `.env`:**
+
+```bash
+GEMINI_API_KEY="your_api_key_here"
+SENDER_NAME="Your Name"
+SENDER_EMAIL="your.email@gmail.com"
+MESSAGE_CONTEXT="following up on our recent conversation"
+SIMULATE_EMAIL_SEND=True
+REVIEW_IN_EDITOR=True
+```
+
+### 5️⃣ Create the Contacts File
+
+Create a CSV file with your contacts (e.g., `contacts.csv`):
 
 ```csv
-# Example contacts.csv content:
 name,email,platform,linkedin_urn
 Alice Smith,alice.s@example.com,gmail,
 Bob Johnson,bob.j@example.com,linkedin,urn:li:person:mock_id_for_bob
 Charlie Brown,charlie.b@example.com,gmail,
 ```
 
-### 6. Running the Application
+> 📌 **Note:** The `linkedin_urn` is only required for LinkedIn contacts (currently mocked).
 
-The first time you run the application, you will be prompted to authenticate with Google.
+---
+
+## 🎯 Running the Application
+
+Launch the agent:
 
 ```bash
-python -m src.main
+python src/agent/main.py
 ```
 
-- A browser window will open, asking you to log in to your Google account and grant permissions.
-- After you approve, a `token.json` file will be created in the root directory. This file stores your authentication tokens so you don't have to log in every time.
+### What happens:
 
-**Note:** The LinkedIn API flow is mocked in this version.
+1. 🔐 **Authentication** (first run only): Browser opens for Google OAuth
+2. 📖 **Contact Loading**: Reads contacts from CSV
+3. 🤖 **Content Generation**: LLM creates personalized emails
+4. ✏️ **Review** (if enabled): Opens draft in text editor (nano/vim/etc.)
+5. ✅ **Confirmation**: Prompts you to confirm sending
+6. 📤 **Delivery**: Sends via Gmail API (or simulates if in test mode)
 
-## Advanced Configuration / Optional Flags
+---
 
-This section details advanced configuration options and flags that control the application's behavior.
+## ⚙️ Advanced Configuration / Optional Flags
 
-### LLM Configuration and Failover
+### 🔄 LLM Configuration and Failover
 
-The application uses a list of Gemini models (e.g., `gemini-2.5-flash`) and includes logic to automatically retry with alternative models or after a cooldown period if API quotas are exceeded. This ensures resilience and continuous operation even under heavy API load.
+The agent uses multiple Gemini models with automatic failover:
+- `gemini-2.5-flash`
+- `gemini-2.5-flash-lite`
+- `gemini-2.0-flash`
 
-### `SIMULATE_EMAIL_SEND` Flag
+If a model hits quota limits, the system automatically switches to the next available model or waits for cooldown.
 
-*   **Function:** This flag controls whether actual emails are sent or if the process is simulated.
-*   **To enable actual email sending:** Set `SIMULATE_EMAIL_SEND=False` in your `.env` file.
-*   **Default Behavior:** By default, emails are simulated and their details are printed to the console, which is useful for testing and preventing accidental sends.
+### 🧪 `SIMULATE_EMAIL_SEND` Flag
 
-### Error Handling and Control
+| Setting | Behavior |
+|---------|----------|
+| `True` (default) | 🖨️ Prints emails to console (safe testing) |
+| `False` | 📧 Sends actual emails via Gmail API |
 
-*   The `stop_on_error` parameter in `main.py` defaults to `True`. This means the application will halt execution if any error occurs during contact processing, providing a safeguard against unexpected issues and ensuring you are aware of problems.
+**Enable real sending:**
+```bash
+SIMULATE_EMAIL_SEND=False
+```
 
-### LinkedIn API Mocking
+### ✏️ `REVIEW_IN_EDITOR` Flag
 
-*   The LinkedIn API integration is currently mocked. The `send_linkedin_message` function within `linkedin_api.py` will print simulation details to the console instead of sending real messages. The `linkedin_urn` is used for display purposes within these simulations.
+| Setting | Behavior |
+|---------|----------|
+| `True` (default) | 📝 Opens draft in text editor for review |
+| `False` | ⏭️ Skips editor, goes straight to confirmation |
+
+**Editor used:** Defaults to `nano`, or uses your `$EDITOR` environment variable.
+
+### 🛡️ Error Handling and Control
+
+The `stop_on_error` parameter in `main.py` defaults to `True`:
+- ✅ **Stops execution** on first error (safe default)
+- ❌ **Continues processing** if set to `False` (skips failed contacts)
+
+### 🔗 LinkedIn API Mocking
+
+> ⚠️ **Currently mocked**: LinkedIn integration prints simulation details instead of sending real messages. The `linkedin_urn` is used for display purposes only.
+
+---
+
+## 📚 Additional Resources
+
+- 📖 [Gmail API Documentation](https://developers.google.com/gmail/api)
+- 🧠 [Google AI Studio](https://aistudio.google.com/)
+- 🐍 [Python dotenv](https://pypi.org/project/python-dotenv/)
+- 📝 [Google Style Guide](https://google.github.io/styleguide/)
+
+---
+
+## 📄 License
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+- 🐛 Report bugs
+- 💡 Suggest features
+- 🔧 Submit pull requests
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Samer Attrah](https://github.com/Samir-atra)**
+
+⭐ Star this repo if you find it helpful!
+
+</div>
