@@ -6,6 +6,7 @@
 ![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
 ![Gmail API](https://img.shields.io/badge/Gmail-API-red.svg)
 ![Gemini](https://img.shields.io/badge/Gemini-LLM-purple.svg)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=samiratra95@gmail.com&item_name=Code+Broker+Donation&currency_code=USD)
 
 **Automated courtesy email generation and delivery powered by AI** ✨
 
@@ -243,6 +244,6 @@ Checkout the [contacts manager](https://github.com/Samir-atra/Contacts_manager/t
 
 **Made with ❤️ by [Samer Attrah](https://github.com/Samir-atra)**
 
-⭐ Star this repo if you find it helpful!
+⭐ Star this repo if you find it helpful, and consider donating if you find it useful!
 
 </div>
